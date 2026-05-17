@@ -111,10 +111,16 @@ namespace OpenRCT2::GameActions
         ShopItem shopItem;
         if (_primaryPrice)
         {
-            shopItem = ShopItem::admission;
-
             const auto& rtd = ride->getRideTypeDescriptor();
-            if (rtd.specialType != RtdSpecialType::toilet)
+            if (rtd.specialType == RtdSpecialType::toilet)
+            {
+                shopItem = ShopItem::admission;
+            }
+            else if (rtd.specialType == RtdSpecialType::cashMachine)
+            {
+                shopItem = ShopItem::cashMachineFee;
+            }
+            else
             {
                 shopItem = rideEntry->shop_item[0];
                 if (shopItem == ShopItem::none)
@@ -168,6 +174,14 @@ namespace OpenRCT2::GameActions
             auto rideEntry = GetRideEntryByIndex(ride.subtype);
             const auto& rtd = ride.getRideTypeDescriptor();
             if (rtd.specialType == RtdSpecialType::toilet && shopItem == ShopItem::admission)
+            {
+                if (ride.price[0] != _price)
+                {
+                    ride.price[0] = _price;
+                    invalidate = true;
+                }
+            }
+            else if (rtd.specialType == RtdSpecialType::cashMachine && shopItem == ShopItem::cashMachineFee)
             {
                 if (ride.price[0] != _price)
                 {
